@@ -9,7 +9,7 @@ auto map(const std::vector<T>& c, F f)
 	std::vector<T2> r; 
 	r.reserve(c.size());
 	for(const auto& e : c)
-		r.push_back(f(e));
+		r.emplace_back(f(e));
 	return r;
 }
 

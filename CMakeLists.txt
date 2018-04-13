@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 2.8)
 project( SFF )
-set(CMAKE_CXX_FLAGS_DEBUG "-std=c++17 -ggdb -g -Wall -Wextra")
-set(CMAKE_CXX_FLAGS_RELEASE "-std=c++17 -O3 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS_DEBUG "-std=c++17 -ggdb -g -Wall -Wextra - Werror")
+set(CMAKE_CXX_FLAGS_RELEASE "-std=c++17 -Ofast -flto -Wall -Wextra -Werror")
 
 find_package( OpenCV REQUIRED )
-add_executable( SFF sff.cpp aux.h aux.cpp image.h image.cpp)
+add_executable( SFF sff.cpp 
+					aux.h 
+					aux.cpp 
+					Image.h 
+					depth.h
+					depth.cpp
+					focus.h
+					focus.cpp)
 target_link_libraries( SFF ${OpenCV_LIBS} )

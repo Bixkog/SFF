@@ -1,13 +1,15 @@
-#include <opencv2/highgui/highgui.hpp>
+#include "aux.h"
+#include "depth.h"
+#include "focus.h"
+#include "Image.h"
+#include "image_utils.h"
 
 #include <algorithm>
 #include <cmath>
+#include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-
-#include "aux.h"
-#include "image.h"
 
 std::vector<cv::Mat> get_input(std::string dir_name)
 {
@@ -31,32 +33,57 @@ std::vector<cv::Mat> get_input(std::string dir_name)
 
 int main(int argc, char** argv)
 {
-	if(argc != 2)
+	if(argc < 2)
 	{
-		std::cout << "Provide path to bug images" << std::endl;
+		std::cout << "Provide path to bug images directory" << std::endl;
 		return 0;
 	}
+
+	std::cout << "Reading files." << std::endl;
 	auto inputs = get_input(argv[1]);
+	auto imgs = map(inputs, [](const auto& m){return Image<uint8_t>(m);});
+	
+	std::cout << "Converting to greyscale." << std::endl;
+	auto g_imgs = map(imgs, to_greyscale<uint8_t>);
+	
+	std::cout << "Calculating focus." << std::endl;
+	auto f_imgs = map(g_imgs, focus_measure<uint8_t>);
 
-	auto imgs = map(inputs, toImage<uint8_t>);
-	auto g_imgs = map(imgs, toGreyscale<uint8_t>);
-	auto f_imgs = map(g_imgs, focusMeasure<uint8_t, int>);
-
+	std::cout << "Creating combined focus image." << std::endl;
 	auto final_img = gather_focus(imgs, f_imgs);
+
+	std::cout << "Creating depth image." << std::endl;
 	auto depth_img = get_depth(f_imgs);
 
-	auto final_Mat = toMat(final_img);
-	auto depth_Mat = toMat(depth_img);
+	std::string depth_filename = "depth.png";
+	std::string final_filename = "final.png";
+	if(argc > 2)
+		final_filename = argv[2];
+	if(argc > 3)
+		depth_filename = argv[3];
 
-    if(!depth_Mat.empty())
-    	cv::imwrite("depth.png", depth_Mat);
-   	else
+	std::cout << "Writing results to files: " 
+			  << final_filename << " "
+			  << depth_filename << std::endl;
+	auto final_Mat = to_mat(final_img);
+	auto depth_Mat = to_mat(depth_img);
+
+    if(depth_Mat.empty())
    		throw std::logic_error("depth matrix empty");
 
-   	if(!final_Mat.empty())
-    	cv::imwrite("final.png", final_Mat); // Show our image inside it.
-   	else
+   	if(final_Mat.empty())
    		throw std::logic_error("final matrix empty");
-    
+	
+	try
+	{
+		cv::imwrite(depth_filename.c_str(), depth_Mat);
+		cv::imwrite(final_filename.c_str(), final_Mat);
+    }
+    catch(std::runtime_error& e)
+    {
+    	std::cout << "Image writing error: " << e.what() << std::endl;
+    	return 1;
+    }
+
     return 0;
 }
