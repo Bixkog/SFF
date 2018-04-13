@@ -13,7 +13,7 @@ size_t max_focus(const std::vector<Image<int>>& f_imgs, size_t pixel)
 				};
 	auto max_e = std::max_element(f_imgs.begin(), f_imgs.end(), comp);
 
-	return std::distance(f_imgs.begin(), max_e); // argmax
+	return std::distance(f_imgs.begin(), max_e);
 }
 
 Image<uint8_t> gather_focus(const std::vector<Image<uint8_t>>& imgs, 

@@ -13,7 +13,6 @@ Image<int> get_focus(const Image<T>& lap, size_t n_size)
 	int lb = -n_size/2;
 	int ub = n_size/2;
 
-	// optimize by division to small squares
 	std::vector<T> lap_v;
 	lap_v.reserve(n_size*n_size);
 	for(int row = 0; row < (int)lap.rows(); ++row)

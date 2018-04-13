@@ -74,16 +74,8 @@ int main(int argc, char** argv)
    	if(final_Mat.empty())
    		throw std::logic_error("final matrix empty");
 	
-	try
-	{
-		cv::imwrite(depth_filename.c_str(), depth_Mat);
-		cv::imwrite(final_filename.c_str(), final_Mat);
-    }
-    catch(std::runtime_error& e)
-    {
-    	std::cout << "Image writing error: " << e.what() << std::endl;
-    	return 1;
-    }
+	cv::imwrite(depth_filename.c_str(), depth_Mat);
+	cv::imwrite(final_filename.c_str(), final_Mat);
 
     return 0;
 }
